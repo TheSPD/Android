@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLocationChanged(Location location) {
                 mTextView.setText("Latitude:" + location.getLatitude() + "\nLongitude:" + location.getLongitude());
+                Log.d(this.getClass().toString(), "Latitude:" + location.getLatitude() + "\nLongitude:" + location.getLongitude());
             }
 
             @Override
@@ -132,14 +133,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        locationManager.removeUpdates(locationListener);
         sensorManager.unregisterListener(sensorEventListener);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
+        try {
+            locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
+            sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
+        }
+        catch (SecurityException e){
+            e.printStackTrace();
+        }
     }
 
     private void getLocation() {
